@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Learn the Movement. Master the Moment.{% endblock %}
+{% block content %}
+{% from "_icons.html" import icon %}
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">AI movement analysis</span>
+      <h1>Learn the Movement. <em>Master the Moment.</em></h1>
+      <p class="lead">Upload a dance tutorial and your own take. ALIke finds where your movement drifts from the reference, shows you exactly which joint and when, and tells you how to fix it.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('upload') }}">Start Analysing {{ icon("arrow") }}</a>
+        {% if demo_enabled %}<a class="btn btn-ghost btn-lg" href="{{ url_for('demo_dashboard') }}">See a sample report</a>{% endif %}
+      </div>
+      <p class="hero-note">{{ icon("info") }} Compares two recordings with pose estimation. It isn't a judge of dance ability.</p>
+    </div>
+
+    <div class="hero-visual reveal" style="animation-delay:.1s">
+      <svg viewBox="0 0 540 400" role="img" aria-label="Two dancers compared with pose skeletons. The learner's right elbow is highlighted as lower than the reference.">
+        <defs>
+          <style>
+            .bone-r { stroke: #42D9E8; stroke-width: 4; stroke-linecap: round; fill: none; opacity: .85; }
+            .bone-l { stroke: #9065FF; stroke-width: 4; stroke-linecap: round; fill: none; opacity: .9; }
+            .j-ok { fill: #42C98A; }
+            .lbl { font: 700 13px Manrope, sans-serif; fill: #A1A3B5; }
+            .tag { font: 700 12px Manrope, sans-serif; fill: #F5F5FA; }
+          </style>
+        </defs>
+
+        <!-- reference panel -->
+        <g transform="translate(10,10)">
+          <rect width="250" height="380" rx="18" fill="#1B1D27" stroke="rgba(255,255,255,.07)"/>
+          <circle cx="16" cy="22" r="5" fill="#42D9E8"/>
+          <text x="30" y="27" class="lbl">Reference</text>
+          <g transform="translate(5,50)">
+            <circle cx="120" cy="30" r="15" class="bone-r"/>
+            <path class="bone-r" d="M120 45 V62 M96 72 H144 M96 72 L106 160 H134 L144 72"/>
+            <path class="bone-r" d="M144 72 L178 48 L182 14"/>
+            <path class="bone-r" d="M96 72 L68 100 L50 134"/>
+            <path class="bone-r" d="M106 160 L98 218 L94 280 M134 160 L142 214 L150 278"/>
+            <g class="j-ok">
+              <circle cx="96" cy="72" r="5.5"/><circle cx="144" cy="72" r="5.5"/>
+              <circle cx="178" cy="48" r="5.5"/><circle cx="182" cy="14" r="5.5"/>
+              <circle cx="68" cy="100" r="5.5"/><circle cx="50" cy="134" r="5.5"/>
+              <circle cx="106" cy="160" r="5.5"/><circle cx="134" cy="160" r="5.5"/>
+              <circle cx="98" cy="218" r="5.5"/><circle cx="142" cy="214" r="5.5"/>
+              <circle cx="94" cy="280" r="5.5"/><circle cx="150" cy="278" r="5.5"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- learner panel -->
+        <g transform="translate(280,10)">
+          <rect width="250" height="380" rx="18" fill="#1B1D27" stroke="rgba(255,255,255,.07)"/>
+          <circle cx="16" cy="22" r="5" fill="#9065FF"/>
+          <text x="30" y="27" class="lbl">You</text>
+          <g transform="translate(5,50)">
+            <circle cx="120" cy="30" r="15" class="bone-l"/>
+            <path class="bone-l" d="M120 45 V62 M96 72 H144 M96 72 L106 160 H134 L144 72"/>
+            <path class="bone-l" d="M144 72 L180 98 L206 72"/>
+            <path class="bone-l" d="M96 72 L70 102 L54 136"/>
+            <path class="bone-l" d="M106 160 L100 220 L96 280 M134 160 L140 214 L146 278"/>
+            <g class="j-ok">
+              <circle cx="96" cy="72" r="5.5"/><circle cx="144" cy="72" r="5.5"/>
+              <circle cx="70" cy="102" r="5.5"/><circle cx="54" cy="136" r="5.5"/>
+              <circle cx="106" cy="160" r="5.5"/><circle cx="134" cy="160" r="5.5"/>
+              <circle cx="100" cy="220" r="5.5"/><circle cx="140" cy="214" r="5.5"/>
+              <circle cx="96" cy="280" r="5.5"/><circle cx="146" cy="278" r="5.5"/>
+            </g>
+            <circle cx="206" cy="72" r="6" fill="#FFBF69"/>
+            <circle cx="180" cy="98" r="12" fill="#FF626F" opacity=".25" class="pulse"/>
+            <circle cx="180" cy="98" r="7" fill="#FF626F"/>
+          </g>
+          <g transform="translate(22,336)">
+            <rect width="206" height="30" rx="9" fill="rgba(255,98,111,.14)" stroke="rgba(255,98,111,.4)"/>
+            <text x="12" y="20" class="tag">Right elbow · 32° · High</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>From two videos to clear corrections</h2>
+      <p>No account, no setup. Three steps and you're looking at your own movement.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>Upload your reference and performance</h3><p>Add the tutorial and your own take of the same routine. Full body in frame, camera steady.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>AI analyses your movements</h3><p>Pose estimation tracks 33 body points, and Dynamic Time Warping lines the two performances up in time.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Understand mistakes and improve</h3><p>See which joints differ, when it happens, and a specific correction for each moment.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features" style="padding-top:20px">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Features</span>
+      <h2>Built around seeing the mistake</h2>
+      <p>Scores are a summary. The value is in the visual feedback.</p>
+    </div>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">{{ icon("eye") }}</div><h3>Skeleton overlays</h3><p>Both performers drawn as pose skeletons, with deviating joints highlighted in yellow or red.</p></div>
+      <div class="feature"><div class="feature-icon">{{ icon("clock") }}</div><h3>Timing-aware</h3><p>Dancing a little faster or slower doesn't break the comparison: moments are matched, not frame numbers.</p></div>
+      <div class="feature"><div class="feature-icon">{{ icon("target") }}</div><h3>Timestamped errors</h3><p>Every deviation has a time, a joint and a size, so you know where to practise.</p></div>
+      <div class="feature"><div class="feature-icon">{{ icon("body") }}</div><h3>Body-part scores</h3><p>Arms, legs, upper and lower body scored separately to show where you're closest and furthest.</p></div>
+      <div class="feature"><div class="feature-icon">{{ icon("layers") }}</div><h3>Side-by-side playback</h3><p>Synchronised videos, aligned to the same moment, with previous / next error navigation.</p></div>
+      <div class="feature"><div class="feature-icon">{{ icon("zap") }}</div><h3>Specific corrections</h3><p>Rule-based suggestions written from the measured deviation, not generic tips.</p></div>
+    </div>
+    <p class="honest">Scores measure how similar two recordings are. They are not a validated measure of dance quality, and results work best with one clearly visible person and a steady camera.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="cta-band">
+      <div><h2>Ready to compare your moves?</h2><p class="muted">Two videos. A few minutes. A clear list of what to fix.</p></div>
+      <a class="btn btn-primary btn-lg" href="{{ url_for('upload') }}">Start Analysing {{ icon("arrow") }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

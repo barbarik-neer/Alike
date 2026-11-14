@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Upload videos{% endblock %}
+{% block content %}
+{% from "_icons.html" import icon %}
+<div class="container">
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Step 1 of 3</span>
+      <h1>Upload your videos</h1>
+      <p>Add the reference tutorial and your own performance of the same routine.</p>
+    </div>
+  </div>
+
+  <div id="global-msg" class="banner err" hidden role="alert">{{ icon("alert") }}<span></span></div>
+
+  <div class="upload-grid" id="upload-grid">
+    {% for slot, title, dotc in [("reference", "Reference Dance Tutorial", "ref"), ("learner", "Your Performance", "lrn")] %}
+    <section class="slot" data-slot="{{ slot }}" aria-label="{{ title }}">
+      <div class="slot-head">
+        <div class="slot-title"><span class="dot {{ dotc }}"></span>{{ title }}</div>
+        <span class="badge ok" data-role="badge" hidden>{{ icon("check") }} Ready</span>
+      </div>
+
+      <div class="dropzone" data-role="dropzone">
+        {{ icon("upload") }}
+        <strong>Drag &amp; drop a video here</strong>
+        <small>or</small>
+        <button type="button" class="btn btn-ghost btn-sm" data-role="browse">Browse files</button>
+        <small>{{ limits.extensions|join(", ")|upper }} · up to {{ limits.max_mb }} MB</small>
+        <input type="file" data-role="input" accept="video/*,.mkv" hidden>
+      </div>
+
+      <div class="slot-preview" data-role="preview" hidden>
+        <video data-role="video" controls muted playsinline preload="metadata"></video>
+      </div>
+
+      <div class="slot-meta" data-role="meta" hidden>
+        <span class="name" data-role="name"></span>
+        <span class="slot-actions">
+          <button type="button" class="btn btn-ghost btn-sm" data-role="replace">{{ icon("refresh") }} Replace</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-role="remove" aria-label="Remove video">{{ icon("trash") }}</button>
+        </span>
+        <span class="sub" data-role="details"></span>
+      </div>
+
+      <div class="slot-msg" data-role="msg" hidden></div>
+    </section>
+    {% endfor %}
+  </div>
+
+  <div class="guide-grid">
+    <div class="guide"><h4>{{ icon("layers") }} Formats &amp; length</h4><p>{{ limits.extensions|join(", ")|upper }}. {{ limits.recommended[0] }}–{{ limits.recommended[1] }} seconds works best (hard limit {{ limits.min_duration|int }}–{{ limits.max_duration|int }} s).</p></div>
+    <div class="guide"><h4>{{ icon("body") }} Full body visible</h4><p>Head to feet in frame the whole time. Avoid cropping arms or legs at the edges.</p></div>
+    <div class="guide"><h4>{{ icon("camera") }} Camera position</h4><p>Steady camera at about waist height, facing the dancer from the front, ideally the same angle in both videos.</p></div>
+    <div class="guide"><h4>{{ icon("eye") }} Clean scene</h4><p>One person, good light, plain background, and clothes that contrast with it.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="analyse-bar">
+      <div>
+        <div class="card-title" id="ready-title">Add both videos to continue</div>
+        <div class="muted" style="font-size:14px" id="ready-sub">Analysis starts once both videos pass validation.</div>
+      </div>
+      <button class="btn btn-primary btn-lg" id="analyse-btn" disabled>Analyse Movement {{ icon("arrow") }}</button>
+    </div>
+    <div class="progress-line" id="upload-progress" hidden><span></span></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="page-data" type="application/json">{{ limits|tojson }}</script>
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

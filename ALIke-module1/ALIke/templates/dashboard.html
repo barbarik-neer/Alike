@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Analysis results{% endblock %}
+{% block head %}<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>{% endblock %}
+{% block content %}
+{% from "_icons.html" import icon %}
+{% set a = report.analysis %}
+{% set C = 326.7 %}
+
+<div class="container">
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Step 3 of 3</span>
+      <h1>Analysis results</h1>
+      <p>How closely your performance matches the reference, and where to focus.</p>
+    </div>
+    <div class="head-actions">
+      <a class="btn btn-primary" href="{{ urls.comparison }}">{{ icon("layers") }} Open video comparison</a>
+      <a class="btn btn-ghost" href="{{ url_for('upload') }}">New analysis</a>
+    </div>
+  </div>
+
+  {% if is_sample %}
+  <div class="banner" style="margin-bottom:18px">{{ icon("info") }}<span><b>Sample data.</b> This page shows made-up numbers so you can preview the interface. It is not the result of a real analysis.</span></div>
+  {% endif %}
+
+  <!-- overall -->
+  <div class="grid-4">
+    <div class="card stat reveal">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="track" cx="60" cy="60" r="52"/>
+          <circle class="fill" cx="60" cy="60" r="52" style="stroke:var(--{{ a.overall_score|tone }})"
+                  stroke-dasharray="{{ C }}" stroke-dashoffset="{{ (C * (1 - (a.overall_score|float / 100))) | round(1) }}"/>
+        </svg>
+        <div class="ring-text">
+          <div class="stat-label">Overall similarity</div>
+          <div class="stat-value tone-{{ a.overall_score|tone }}">{{ a.overall_score|num }}<small>%</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="card stat reveal" style="animation-delay:.05s">
+      <div class="stat-label">Timing similarity</div>
+      <div class="stat-value tone-{{ a.timing_score|tone }}">{{ a.timing_score|num }}<small>%</small></div>
+      <div class="bar"><span class="{{ a.timing_score|tone }}" style="width:{{ [a.timing_score, 100]|min }}%"></span></div>
+    </div>
+    <div class="card stat reveal" style="animation-delay:.1s">
+      <div class="stat-label">Deviations detected</div>
+      <div class="stat-value">{{ report.counts.total }}</div>
+      <div class="stat-foot">{{ report.counts.medium }} medium · {{ report.counts.low }} low</div>
+    </div>
+    <div class="card stat reveal" style="animation-delay:.15s">
+      <div class="stat-label">High-severity errors</div>
+      <div class="stat-value {{ 'tone-err' if report.counts.high else 'tone-ok' }}">{{ report.counts.high }}</div>
+      <div class="stat-foot">{{ 'Start with these' if report.counts.high else 'None found' }}</div>
+    </div>
+  </div>
+
+  <!-- body parts + distribution -->
+  <div class="grid-2 mt">
+    <section class="card">
+      <h2 class="card-title">Body-part similarity</h2>
+      <p class="card-sub">Higher means closer to the reference.</p>
+      {% for key, value in report.body_scores %}
+      <div class="part">
+        <span>{{ key|label }}</span>
+        <div class="bar"><span class="{{ value|tone }}" style="width:{{ [value, 100]|min }}%"></span></div>
+        <b>{{ value|num }}</b>
+      </div>
+      {% else %}
+      <div class="empty">No body-part scores were returned.</div>
+      {% endfor %}
+    </section>
+    <section class="card">
+      <h2 class="card-title">Where errors cluster</h2>
+      <p class="card-sub">Number of deviations by body region.</p>
+      {% if report.distribution %}<div id="dist-chart" class="plot" style="min-height:240px"></div>
+      {% else %}<div class="empty"><b>Nothing to chart</b>No deviations were detected.</div>{% endif %}
+    </section>
+  </div>
+
+  <!-- timeline -->
+  <section class="card mt">
+    <h2 class="card-title">Movement timeline</h2>
+    <p class="card-sub">Each marker is a detected error. Click one to jump to that moment in the comparison.</p>
+    {% if report.errors %}
+      <div id="timeline-chart" class="plot" style="min-height:230px"></div>
+      <div class="legend">
+        <span><i style="background:var(--err)"></i>High</span>
+        <span><i style="background:var(--warn)"></i>Medium</span>
+        <span><i style="background:var(--secondary)"></i>Low</span>
+      </div>
+    {% else %}<div class="empty"><b>No significant deviations</b>Your movement stayed within the thresholds.</div>{% endif %}
+  </section>
+
+  <!-- errors + side -->
+  <div class="grid-main mt">
+    <section class="card">
+      <h2 class="card-title">Movement errors</h2>
+      <p class="card-sub">Select an error to see it in the video comparison.</p>
+      {% if report.errors %}
+      <div class="chips" role="group" aria-label="Filter by severity">
+        <button class="chip" data-filter="all" aria-pressed="true">All ({{ report.counts.total }})</button>
+        <button class="chip" data-filter="high" aria-pressed="false">High ({{ report.counts.high }})</button>
+        <button class="chip" data-filter="medium" aria-pressed="false">Medium ({{ report.counts.medium }})</button>
+        <button class="chip" data-filter="low" aria-pressed="false">Low ({{ report.counts.low }})</button>
+      </div>
+      <div class="err-list" id="err-list">
+        {% for e in report.errors %}
+        <button class="err-item {{ e.severity }}" data-index="{{ e.index }}" data-severity="{{ e.severity }}">
+          <span class="err-time">{{ e.timestamp|mmss }}</span>
+          <span class="err-main">
+            <b>{{ e.joint|label }}</b><span class="dev">{{ e.deviation|num }}{{ e.unit or '°' }} deviation</span>
+            <p>{{ e.suggestion or e.description or '' }}</p>
+          </span>
+          <span class="badge {{ e.severity }}">{{ e.severity }}</span>
+        </button>
+        {% endfor %}
+      </div>
+      {% else %}<div class="empty"><b>All clear</b>No errors to list.</div>{% endif %}
+    </section>
+
+    <div class="stack">
+      <section class="card">
+        <h2 class="card-title">Corrective suggestions</h2>
+        <p class="card-sub">Highest-impact fixes first.</p>
+        {% if report.suggestions %}
+        <ol class="sugg">
+          {% for s in report.suggestions %}
+          <li><span class="n">{{ loop.index }}</span><div>{{ s.suggestion }}<small>{{ s.joint|label }} · {{ s.timestamp|mmss }}</small></div></li>
+          {% endfor %}
+        </ol>
+        {% else %}<div class="empty">No suggestions: nothing needs correcting.</div>{% endif %}
+      </section>
+
+      <section class="card video-prev">
+        <h2 class="card-title">Annotated video</h2>
+        <p class="card-sub">Reference and you, side by side, aligned in time.</p>
+        {% if media.annotated %}
+          <video controls preload="metadata" playsinline src="{{ media.annotated }}"></video>
+        {% else %}
+          <div class="video-ph">{{ 'The annotated video isn\'t part of the sample.' if is_sample else 'The annotated video is not available for this analysis.' }}</div>
+        {% endif %}
+        <a class="btn btn-primary mt" style="width:100%" href="{{ urls.comparison }}">{{ icon("layers") }} Open detailed comparison</a>
+      </section>
+    </div>
+  </div>
+
+  <section class="card mt method">
+    <strong>How to read these scores.</strong> Similarity compares joint positions, joint angles and timing between your video and the reference after alignment. It tells you how close two recordings are, not how good the dancing is, and it can be thrown off by camera angle, framing or occlusion.
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="page-data" type="application/json">{{ page_data|tojson }}</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{# Inline icon set (stroke icons). Usage: {% from "_icons.html" import icon %}{{ icon("play") }} #}
+{% macro icon(name) -%}
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{%- if name == "upload" %}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/>
+{%- elif name == "play" %}<path d="M6 4l14 8-14 8z" fill="currentColor"/>
+{%- elif name == "pause" %}<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+{%- elif name == "prev" %}<path d="M19 20L9 12l10-8z"/><path d="M5 19V5"/>
+{%- elif name == "next" %}<path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/>
+{%- elif name == "check" %}<path d="M20 6L9 17l-5-5"/>
+{%- elif name == "alert" %}<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+{%- elif name == "info" %}<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+{%- elif name == "camera" %}<path d="M23 7l-7 5 7 5z"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+{%- elif name == "body" %}<circle cx="12" cy="5" r="2.5"/><path d="M12 8v6"/><path d="M6 10l6-1 6 1"/><path d="M9 21l3-7 3 7"/>
+{%- elif name == "clock" %}<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+{%- elif name == "layers" %}<path d="M12 2l10 5-10 5L2 7z"/><path d="M2 12l10 5 10-5"/><path d="M2 17l10 5 10-5"/>
+{%- elif name == "target" %}<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+{%- elif name == "zap" %}<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>
+{%- elif name == "menu" %}<path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/>
+{%- elif name == "trash" %}<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/>
+{%- elif name == "refresh" %}<path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 15-3.4L23 10"/><path d="M1 14l4.5 4.4A9 9 0 0 0 20.5 15"/>
+{%- elif name == "arrow" %}<path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+{%- elif name == "chart" %}<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>
+{%- elif name == "eye" %}<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+{%- endif %}</svg>
+{%- endmacro %}

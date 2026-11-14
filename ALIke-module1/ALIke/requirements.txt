@@ -1,0 +1,12 @@
+# Module 1 (Flask app + frontend) needs: Flask, numpy, opencv-python
+# The rest are for Modules 2-5 and tests, listed here so the project installs in one go.
+Flask>=3.0
+Werkzeug>=3.0
+Jinja2>=3.1
+numpy>=1.26
+scipy>=1.11
+opencv-python>=4.9
+mediapipe>=0.10
+dtaidistance>=2.3
+pandas>=2.1          # optional: tabular exports
+pytest>=8.0

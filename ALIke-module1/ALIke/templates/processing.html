@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Analysing{% endblock %}
+{% block content %}
+{% from "_icons.html" import icon %}
+<div class="container">
+  <div class="proc">
+    <div class="proc-top">
+      <div>
+        <span class="eyebrow">Step 2 of 3</span>
+        <h1 style="font-size:34px;margin-top:8px" id="proc-title">Analysing your movement</h1>
+      </div>
+      <div class="muted mono" id="elapsed" aria-label="Elapsed time">0:00</div>
+    </div>
+
+    <div class="progress-line proc-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="proc-bar"><span></span></div>
+    <p class="proc-msg" id="proc-msg" aria-live="polite">Starting…</p>
+
+    <ol class="stage-list" id="stage-list">
+      {% for s in stages %}
+      <li class="stage" data-key="{{ s.key }}" data-state="pending">
+        <span class="stage-ic" data-role="ic">{{ loop.index }}</span>
+        <div><b>{{ s.label }}</b><small>{{ s.description }}</small></div>
+        <span class="stage-state" data-role="state">Waiting</span>
+      </li>
+      {% endfor %}
+    </ol>
+
+    <div class="proc-error" id="proc-error" hidden role="alert">
+      <h3 id="proc-error-title">Analysis stopped</h3>
+      <p id="proc-error-text"></p>
+      <a class="btn btn-primary" href="{{ url_for('upload') }}">{{ icon("refresh") }} Upload again</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="page-data" type="application/json">{{ {"job_id": job_id}|tojson }}</script>
+<script src="{{ url_for('static', filename='js/processing.js') }}"></script>
+{% endblock %}

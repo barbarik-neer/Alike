@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Video comparison{% endblock %}
+{% block content %}
+{% from "_icons.html" import icon %}
+<div class="container">
+  <div class="cmp-head">
+    <div>
+      <span class="eyebrow">Detailed comparison</span>
+      <h1>Reference vs. you</h1>
+    </div>
+    <div class="head-actions">
+      <div class="seg" role="group" aria-label="View mode">
+        <button id="mode-live" aria-pressed="true">Live overlay</button>
+        <button id="mode-annot" aria-pressed="false" {% if not media.annotated %}disabled title="No annotated video available"{% endif %}>Annotated video</button>
+      </div>
+      <a class="btn btn-ghost" href="{{ urls.dashboard }}">Back to results</a>
+    </div>
+  </div>
+
+  {% if is_sample %}
+  <div class="banner" style="margin-bottom:16px">{{ icon("info") }}<span><b>Sample data.</b> No videos are attached in the sample, so playback is disabled. Error navigation and the correction panel still work.</span></div>
+  {% endif %}
+
+  <div class="cmp-layout">
+    <section>
+      <!-- live overlay: original videos + canvas skeletons -->
+      <div id="stage-live" class="cmp-stage">
+        {% for side, title in [("reference", "Reference"), ("learner", "You")] %}
+        <div class="cmp-panel" data-side="{{ side }}">
+          <div class="cmp-badge"><span>{{ title }}</span><span class="t" id="t-{{ side }}">0:00.0</span></div>
+          <div class="cmp-frame">
+            {% if media[side] %}
+              <video id="vid-{{ side }}" playsinline muted preload="auto" src="{{ media[side] }}"></video>
+              <canvas id="cv-{{ side }}"></canvas>
+            {% else %}
+              <div class="cmp-empty">No video attached</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- annotated MP4 from Module 5 -->
+      <div id="stage-annot" class="cmp-annot" hidden>
+        {% if media.annotated %}<video id="vid-annot" controls playsinline preload="metadata" src="{{ media.annotated }}"></video>{% endif %}
+      </div>
+
+      <div class="controls" id="controls">
+        <div class="scrub">
+          <div class="ticks" id="ticks"></div>
+          <input type="range" id="scrub" min="0" max="1" step="0.01" value="0" aria-label="Timeline">
+        </div>
+        <div class="ctrl-row">
+          <button class="icon-btn" id="btn-prev" aria-label="Previous error" title="Previous error (P)">{{ icon("prev") }}</button>
+          <button class="icon-btn main" id="btn-play" aria-label="Play" title="Play / pause (Space)">{{ icon("play") }}</button>
+          <button class="icon-btn" id="btn-next" aria-label="Next error" title="Next error (N)">{{ icon("next") }}</button>
+          <div class="time-read"><b id="time-now">0:00.0</b> <span>/ <span id="time-total">0:00.0</span></span></div>
+          <span class="spacer"></span>
+          <label class="muted" style="font-size:14px" for="speed">Speed</label>
+          <select class="select" id="speed">
+            <option value="0.25">0.25×</option><option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option><option value="1" selected>1×</option>
+          </select>
+        </div>
+        <div class="key-legend">
+          <span><i style="background:var(--ok)"></i>Matches reference</span>
+          <span><i style="background:var(--warn)"></i>Moderate deviation</span>
+          <span><i style="background:var(--err)"></i>Significant deviation</span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="fix-panel">
+      <section class="card" id="fix-card" aria-live="polite">
+        <div class="fix-head"><h2 id="fix-joint">No error selected</h2><span class="badge" id="fix-sev" hidden></span></div>
+        <div class="fix-meta" id="fix-meta">Pick an error from the list or the timeline to see the correction.</div>
+        <div id="fix-body" hidden>
+          <div class="fix-nums">
+            <div class="fix-num ref"><small>Reference</small><b id="fix-ref">—</b></div>
+            <div class="fix-num lrn"><small>You</small><b id="fix-lrn">—</b></div>
+            <div class="fix-num"><small>Deviation</small><b id="fix-dev">—</b></div>
+          </div>
+          <div class="fix-sugg"><small>Correction</small><span id="fix-sugg"></span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">All errors</h2>
+        <p class="card-sub">{{ report.counts.total }} detected</p>
+        {% if report.errors %}
+        <div class="mini-list" id="mini-list">
+          {% for e in report.errors %}
+          <button class="err-item {{ e.severity }}" data-index="{{ e.index }}">
+            <span class="err-time">{{ e.timestamp|mmss }}</span>
+            <span class="err-main"><b>{{ e.joint|label }}</b><span class="dev">{{ e.deviation|num }}{{ e.unit or '°' }}</span></span>
+            <span class="badge {{ e.severity }}">{{ e.severity }}</span>
+          </button>
+          {% endfor %}
+        </div>
+        {% else %}<div class="empty"><b>All clear</b>No errors to navigate.</div>{% endif %}
+      </section>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="page-data" type="application/json">{{ page_data|tojson }}</script>
+<script src="{{ url_for('static', filename='js/comparison.js') }}"></script>
+{% endblock %}
